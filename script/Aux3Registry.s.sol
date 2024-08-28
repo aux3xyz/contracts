@@ -2,17 +2,17 @@
 pragma solidity ^0.8.13;
 
 import {Script, console} from "forge-std/Script.sol";
-import {Counter} from "../src/Counter.sol";
+import "../src/Aux3Registry.sol";
 
-contract CounterScript is Script {
-    Counter public counter;
+contract Aux3Script is Script {
+    Aux3Registry public aux3Registry;
 
     function setUp() public {}
 
     function run() public {
         vm.startBroadcast();
 
-        counter = new Counter();
+        aux3Registry = new Aux3Registry();
 
         vm.stopBroadcast();
     }
