@@ -2,15 +2,15 @@
 pragma solidity ^0.8.13;
 
 contract Aux3Registry {
-    uint public lastId;
-    mapping(address => uint) public aux3Ids;
+    uint256 public lastId;
+    mapping(address => uint256) public aux3Ids;
 
     // Event declarations
-    event Aux3IdRegistered(address indexed addr, uint id);
-    event Aux3IdTransferred(address indexed from, address indexed to, uint id);
+    event Aux3IdRegistered(address indexed addr, uint256 id);
+    event Aux3IdTransferred(address indexed from, address indexed to, uint256 id);
 
     // @dev register an address for an aux3 id
-    function registerAux3Id(address _addr) public returns (uint) {
+    function registerAux3Id(address _addr) public returns (uint256) {
         require(aux3Ids[_addr] == 0, "Address is already registered");
         require(_addr != address(0), "Invalid address");
 
@@ -24,7 +24,7 @@ contract Aux3Registry {
     }
 
     // @dev get the aux3 id for an address
-    function getAux3Id(address _addr) public view returns (uint) {
+    function getAux3Id(address _addr) public view returns (uint256) {
         return aux3Ids[_addr];
     }
 
@@ -34,7 +34,7 @@ contract Aux3Registry {
         require(_to != msg.sender, "Cannot transfer to the same address");
         require(_to != address(0), "Invalid recipient address");
 
-        uint id = aux3Ids[msg.sender];
+        uint256 id = aux3Ids[msg.sender];
         require(id != 0, "Sender does not have an ID");
 
         delete aux3Ids[msg.sender];
@@ -43,5 +43,4 @@ contract Aux3Registry {
         // Emit an event for transfer
         emit Aux3IdTransferred(msg.sender, _to, id);
     }
-    
 }

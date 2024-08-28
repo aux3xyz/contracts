@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
-import "../src/Aux3Registry.sol"; 
+import "../src/Aux3Registry.sol";
 
 contract Aux3RegistryTest is Test {
     Aux3Registry public registry;
@@ -16,7 +16,7 @@ contract Aux3RegistryTest is Test {
     }
 
     function testRegisterAux3Id() public {
-        uint id = registry.registerAux3Id(user1);
+        uint256 id = registry.registerAux3Id(user1);
         assertEq(id, 1);
         assertEq(registry.getAux3Id(user1), 1);
 
@@ -26,8 +26,8 @@ contract Aux3RegistryTest is Test {
     }
 
     function testRegisterMultipleUsers() public {
-        uint id1 = registry.registerAux3Id(user1);
-        uint id2 = registry.registerAux3Id(user2);
+        uint256 id1 = registry.registerAux3Id(user1);
+        uint256 id2 = registry.registerAux3Id(user2);
 
         assertEq(id1, 1);
         assertEq(id2, 2);
