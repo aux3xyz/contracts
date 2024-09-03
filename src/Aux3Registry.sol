@@ -80,15 +80,15 @@ contract Aux3Registry is Ownable {
         require(_chainId != 0, "Invalid chain ID");
         require(_eventTopic != 0, "Invalid event topic");
 
-        uint256 _eventId = ++lastAux3EventId;
+        lastAux3EventId++;
 
         Aux3EventConfig memory config =
             Aux3EventConfig(_contractAddress, _eventSignature, _eventAction, aux3Ids[msg.sender], _chainId, _eventTopic);
 
-        aux3EventIds[_eventId] = config;
+        aux3EventIds[lastAux3EventId] = config;
 
         // Emit an event for registration
-        emit Aux3EventRegistered(_contractAddress, _eventId, aux3Ids[msg.sender]);
+        emit Aux3EventRegistered(_contractAddress, lastAux3EventId, aux3Ids[msg.sender]);
     }
 
     // @dev get the aux3 event config for an aux3Event id
