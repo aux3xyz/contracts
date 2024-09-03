@@ -99,7 +99,6 @@ contract Aux3Registry is Ownable {
     // @dev update the aux3 event action for an _eventId
     function updateAux3EventConfig(uint256 _eventId, bytes32 _eventAction) public {
         require(aux3EventIds[_eventId].aux3Id == aux3Ids[msg.sender], "Sender does not own the event's aux3Id");
-        require(_eventAction != bytes32(0), "Invalid event action");
 
         Aux3EventConfig memory config = Aux3EventConfig(
             aux3EventIds[_eventId].contractAddress,
