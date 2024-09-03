@@ -12,7 +12,7 @@ contract Aux3Script is Script {
     function run() public {
         vm.startBroadcast();
 
-        aux3Registry = new Aux3Registry();
+        aux3Registry = new Aux3Registry(msg.sender);
 
         vm.stopBroadcast();
     }
