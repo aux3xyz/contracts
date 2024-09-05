@@ -2,6 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 struct Aux3EventConfig {
     uint32 chainId;
@@ -107,7 +108,16 @@ contract Aux3Registry is Ownable {
         require(aux3EventIds[_eventId].aux3Id == aux3Ids[msg.sender], "Sender does not own the event's aux3Id");
 
         aux3EventActions[_eventId] = _eventAction;
-
         emit Aux3EventUpdated(_eventId);
+    }
+
+    function sweepNativeToken() external onlyOwner {
+        uint256 _balance = address(this).balance;
+        payable(msg.sender).transfer(_balance);
+    }
+
+    function sweepToken(address _token) external onlyOwner {
+        uint256 balance = IERC20(_token).balanceOf(address(this));
+        IERC20(_token).transfer(msg.sender, balance);
     }
 }
