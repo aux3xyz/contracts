@@ -12,7 +12,7 @@ contract Aux3RegistryTest is Test {
     address public user3 = address(0x3);
 
     function setUp() public {
-        registry = new Aux3Registry();
+        registry = new Aux3Registry(msg.sender);
     }
 
     function testRegisterAux3Id() public {
