@@ -56,18 +56,9 @@ contract Aux3RegistryTest is Test {
         registry.registerAux3Id(addr1);
 
         vm.prank(addr1);
-        registry.registerAux3Event(
-            1,
-            address(this),
-            topic_0,
-            "",
-            "",
-            "",
-            eventAction
-        );
+        registry.registerAux3Event(1, address(this), topic_0, "", "", "", eventAction);
 
-        (Aux3EventConfig memory config, bytes memory action) = registry
-            .getAux3Event(1);
+        (Aux3EventConfig memory config, bytes memory action) = registry.getAux3Event(1);
         assertEq(config.aux3Id, 1);
         assertEq(config.chainId, 1);
         assertEq(config.contractAddress, address(this));
@@ -84,15 +75,7 @@ contract Aux3RegistryTest is Test {
         registry.registerAux3Id(addr1);
 
         vm.prank(addr1);
-        registry.registerAux3Event(
-            1,
-            address(this),
-            topic_0,
-            "",
-            "",
-            "",
-            initialAction
-        );
+        registry.registerAux3Event(1, address(this), topic_0, "", "", "", initialAction);
 
         vm.prank(addr1);
         registry.updateAux3EventAction(1, updatedAction);
@@ -129,19 +112,8 @@ contract Aux3RegistryTest is Test {
 
     function testSweepERC20Token() public {
         // Mock ERC20 contract
-        vm.mockCall(
-            token,
-            abi.encodeWithSelector(
-                IERC20.balanceOf.selector,
-                address(registry)
-            ),
-            abi.encode(1000)
-        );
-        vm.mockCall(
-            token,
-            abi.encodeWithSelector(IERC20.transfer.selector, owner, 1000),
-            abi.encode(true)
-        );
+        vm.mockCall(token, abi.encodeWithSelector(IERC20.balanceOf.selector, address(registry)), abi.encode(1000));
+        vm.mockCall(token, abi.encodeWithSelector(IERC20.transfer.selector, owner, 1000), abi.encode(true));
 
         vm.prank(owner);
         registry.sweepToken(token);
