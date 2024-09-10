@@ -49,9 +49,10 @@ contract Aux3Registry is Ownable {
 
     // @dev transfers an Aux3Id of the sender to another address
     function transferAux3Id(address _to) public {
-        require(lastId > 0, "Registry is empty");
+        require(lastId != 0, "Registry is empty");
         require(_to != msg.sender, "Cannot transfer to the same address");
         require(_to != address(0), "Invalid recipient address");
+        require(aux3Ids[_to] == 0, "Recipient already has an ID");
 
         uint256 id = aux3Ids[msg.sender];
         require(id != 0, "Sender does not have an ID");
@@ -119,7 +120,8 @@ contract Aux3Registry is Ownable {
     // @dev sweeps native token from contract to owner
     function sweepNativeToken() external onlyOwner {
         uint256 _balance = address(this).balance;
-        require(payable(owner()).send(_balance), "Transfer failed");
+        (bool success,) = payable(owner()).call{value: _balance}("");
+        require(success, "Transfer failed");
     }
 
     // @dev sweeps ERC20 token from contract to owner
