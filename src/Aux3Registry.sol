@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 struct Aux3EventConfig {
@@ -20,39 +20,34 @@ contract Aux3Registry is Ownable {
     mapping(address => uint256) public aux3Ids;
     mapping(uint256 => Aux3EventConfig) public aux3EventIds;
     mapping(uint256 => bytes) public aux3EventActions;
+    mapping(uint256 => uint256) public aux3IdBalance;
 
-    // initialize the contract
-    constructor(address _owner) Ownable(_owner) {}
+    constructor(address initialOwner) Ownable(initialOwner) {}
 
-    // event declarations
-    // aux3 ID related
     event Aux3IdRegistered(address indexed addr, uint256 id);
     event Aux3IdTransferred(address indexed from, address indexed to, uint256 id);
-
-    // aux3 events related
     event Aux3EventRegistered(address indexed contractAddress, uint256 indexed eventId, uint256 indexed aux3Id);
     event Aux3EventUpdated(uint256 indexed eventId);
+    event Aux3IdBalanceUpdated(uint256 indexed id, uint256 balance);
 
-    // @dev register an address for an aux3 id
-    function registerAux3Id(address _addr) public returns (uint256) {
+    // @dev registers an Aux3Id for an address
+    function registerAux3Id(address _addr) public onlyOwner returns (uint256) {
         require(aux3Ids[_addr] == 0, "Address is already registered");
         require(_addr != address(0), "Invalid address");
 
         lastId++;
         aux3Ids[_addr] = lastId;
 
-        // Emit an event for registration
         emit Aux3IdRegistered(_addr, lastId);
-
         return lastId;
     }
 
-    // @dev get the aux3 id for an address
+    // @dev returns the Aux3Id of an address
     function getAux3Id(address _addr) public view returns (uint256) {
         return aux3Ids[_addr];
     }
 
-    // @dev transfer the aux3 id to another address
+    // @dev transfers an Aux3Id of the sender to another address
     function transferAux3Id(address _to) public {
         require(lastId > 0, "Registry is empty");
         require(_to != msg.sender, "Cannot transfer to the same address");
@@ -64,11 +59,10 @@ contract Aux3Registry is Ownable {
         delete aux3Ids[msg.sender];
         aux3Ids[_to] = id;
 
-        // Emit an event for transfer
         emit Aux3IdTransferred(msg.sender, _to, id);
     }
 
-    // @dev register an event for user having an aux3 id
+    // @dev registers an Aux3Event
     function registerAux3Event(
         uint32 _chainId,
         address _contractAddress,
@@ -88,36 +82,50 @@ contract Aux3Registry is Ownable {
 
         lastAux3EventId++;
 
+        // create Aux3EventConfig
         Aux3EventConfig memory config =
             Aux3EventConfig(_chainId, _aux3Id, _contractAddress, _topic_0, _topic_1, _topic_2, _topic_3);
 
         aux3EventIds[lastAux3EventId] = config;
         aux3EventActions[lastAux3EventId] = _eventAction;
 
-        // Emit an event for registration
         emit Aux3EventRegistered(_contractAddress, lastAux3EventId, _aux3Id);
     }
 
-    // @dev get the aux3 event config for an aux3Event id
+    // @dev returns the Aux3Event config and action
     function getAux3Event(uint256 _eventId) public view returns (Aux3EventConfig memory, bytes memory) {
         return (aux3EventIds[_eventId], aux3EventActions[_eventId]);
     }
 
-    // @dev update the aux3 event action for an _eventId
+    // @dev updates the action for an Aux3Event
     function updateAux3EventAction(uint256 _eventId, bytes memory _eventAction) public {
         require(aux3EventIds[_eventId].aux3Id == aux3Ids[msg.sender], "Sender does not own the event's aux3Id");
-
         aux3EventActions[_eventId] = _eventAction;
         emit Aux3EventUpdated(_eventId);
     }
 
-    function sweepNativeToken() external onlyOwner {
-        uint256 _balance = address(this).balance;
-        payable(msg.sender).transfer(_balance);
+    // @dev updates the balance of an Aux3Id
+    function updateAux3IdBalance(uint256 _id, uint256 _balance) external onlyOwner {
+        require(_id != 0 && _id <= lastId, "Invalid Aux3Id");
+        aux3IdBalance[_id] = _balance;
+        emit Aux3IdBalanceUpdated(_id, _balance);
     }
 
+    // @dev returns the balance of an Aux3Id
+    function getAux3IdBalance(uint256 _id) public view returns (uint256) {
+        return aux3IdBalance[_id];
+    }
+
+    // @dev sweeps native token from contract to owner
+    function sweepNativeToken() external onlyOwner {
+        uint256 _balance = address(this).balance;
+        require(payable(owner()).send(_balance), "Transfer failed");
+    }
+
+    // @dev sweeps ERC20 token from contract to owner
     function sweepToken(address _token) external onlyOwner {
-        uint256 balance = IERC20(_token).balanceOf(address(this));
-        IERC20(_token).transfer(msg.sender, balance);
+        IERC20 token = IERC20(_token);
+        uint256 balance = token.balanceOf(address(this));
+        require(token.transfer(owner(), balance), "Transfer failed");
     }
 }
