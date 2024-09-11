@@ -70,4 +70,14 @@ abstract contract Aux3Payments is Ownable, OApp {
     function isTokenWhitelisted(address token) external view returns (bool) {
         return whitelistedTokens[token];
     }
+
+    // @dev fallback function (for when no function is matched)
+    fallback() external payable {
+        revert("We don't do that here!!!");
+    }
+
+    // @dev receive function (for not receiving Ether directly)
+    receive() external payable {
+        revert("We don't do that here!!!");
+    }
 }
