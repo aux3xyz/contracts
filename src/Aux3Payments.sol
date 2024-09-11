@@ -20,6 +20,8 @@ abstract contract Aux3Payments is Ownable, OApp {
         lzEndpoint = _endpoint;
     }
 
+    mapping(address => bool) public whitelistedTokens;
+
     function changeLzDelegate() external onlyOwner {
         setDelegate(msg.sender);
     }
@@ -51,6 +53,7 @@ abstract contract Aux3Payments is Ownable, OApp {
         require(amount > 0, "Must provide a non-zero amount");
         require(aux3Id > 0, "Must provide a valid aux3 id");
         require(token != address(0), "Must provide a valid token address");
+        require(whitelistedTokens[token], "Token is not whitelisted");
         IERC20(token).transferFrom(msg.sender, owner(), amount);
 
         _send(abi.encode("PaymentReceivedWithERC20", aux3Id, msg.sender, token, amount));
@@ -59,4 +62,12 @@ abstract contract Aux3Payments is Ownable, OApp {
     }
 
     // @dev whitelists a token for payments
+    function whitelistToken(address token) external onlyOwner {
+        whitelistedTokens[token] = true;
+    }
+
+    // @dev checks if a token is whitelisted for payments
+    function isTokenWhitelisted(address token) external view returns (bool) {
+        return whitelistedTokens[token];
+    }
 }
