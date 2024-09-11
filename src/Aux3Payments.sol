@@ -30,4 +30,6 @@ contract Aux3Payments is Ownable {
 
         emit PaymentReceivedWithERC20(aux3Id, msg.sender, token, amount);
     }
+
+    // @dev whitelists a token for payments
 }

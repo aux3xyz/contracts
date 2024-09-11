@@ -17,10 +17,14 @@ struct Aux3EventConfig {
 contract Aux3Registry is Ownable {
     uint256 public lastId;
     uint256 public lastAux3EventId;
+    uint256 public lastAdjustBlockHeight;
+
+    mapping(uint256 => uint256) public chainCostMultipliers;
     mapping(address => uint256) public aux3Ids;
     mapping(uint256 => Aux3EventConfig) public aux3EventIds;
     mapping(uint256 => bytes) public aux3EventActions;
     mapping(uint256 => uint256) public aux3IdBalance;
+    mapping(uint256 => uint256) public aux3IdBalanceMultiplier;
 
     constructor(address initialOwner) Ownable(initialOwner) {}
 
@@ -130,4 +134,18 @@ contract Aux3Registry is Ownable {
         uint256 balance = token.balanceOf(address(this));
         require(token.transfer(owner(), balance), "Transfer failed");
     }
+
+    // @dev adjusts account balance for number of missed blocks
+
+    // @dev last adjustment timestamp
+
+    // @dev gets the last updated timestamp for balances
+
+    // @dev gets the balance multiplier for the aux3Id
+
+    // @dev updates the balance multiplier for the aux3Id
+
+    // @dev gets the cost multiplier for the chain
+
+    // @dev updates the cost multiplier for the chain
 }
