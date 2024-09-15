@@ -27,7 +27,7 @@ abstract contract Aux3Payments is Ownable, OApp {
     }
 
     function _send(bytes memory _message) internal {
-        bytes memory _options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 10);
+        bytes memory _options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 10); // TODO: calculate gas dynamically
         _lzSend(dstId, _message, _options, MessagingFee(msg.value, 0), payable(msg.sender));
     }
 
