@@ -19,6 +19,7 @@ contract Aux3Registry is Ownable {
     uint256 public lastAux3EventId;
     uint256 public lastAdjustBlockHeight;
 
+    mapping(uint256 => uint256) public supportedChains; // chainId => iterator
     mapping(uint256 => uint256) public chainCostMultipliers;
     mapping(address => uint256) public aux3Ids;
     mapping(uint256 => Aux3EventConfig) public aux3EventIds;
@@ -65,6 +66,7 @@ contract Aux3Registry is Ownable {
         aux3Ids[_to] = id;
 
         emit Aux3IdTransferred(msg.sender, _to, id);
+        // adjust balance multiplier for the aux3Id #TODO: implement
     }
 
     // @dev registers an Aux3Event
@@ -95,6 +97,8 @@ contract Aux3Registry is Ownable {
         aux3EventActions[lastAux3EventId] = _eventAction;
 
         emit Aux3EventRegistered(_contractAddress, lastAux3EventId, _aux3Id);
+
+        // adjust balance multiplier for the aux3Id #TODO: implement
     }
 
     // @dev returns the Aux3Event config and action
@@ -107,6 +111,8 @@ contract Aux3Registry is Ownable {
         require(aux3EventIds[_eventId].aux3Id == aux3Ids[msg.sender], "Sender does not own the event's aux3Id");
         aux3EventActions[_eventId] = _eventAction;
         emit Aux3EventUpdated(_eventId);
+
+        // adjust balance multiplier for the aux3Id #TODO: implement
     }
 
     // @dev updates the balance of an Aux3Id
@@ -114,11 +120,6 @@ contract Aux3Registry is Ownable {
         require(_id != 0 && _id <= lastId, "Invalid Aux3Id");
         aux3IdBalance[_id] = _balance;
         emit Aux3IdBalanceUpdated(_id, _balance);
-    }
-
-    // @dev returns the balance of an Aux3Id
-    function getAux3IdBalance(uint256 _id) public view returns (uint256) {
-        return aux3IdBalance[_id];
     }
 
     // @dev sweeps native token from contract to owner
@@ -136,16 +137,41 @@ contract Aux3Registry is Ownable {
     }
 
     // @dev adjusts account balance for number of missed blocks
+    function adjustForMissedBlocks(uint256 _deployedChainNetBlocksMissed) external onlyOwner {
+        // TODO: implement
+        // calculate latest balance for when none is missed
+        // increase balance by the number of blocks missed * chainCostMultiplier
+    }
 
     // @dev last adjustment timestamp
-
-    // @dev gets the last updated timestamp for balances
+    function getLastAdjustBlockHeight() public view returns (uint256) {
+        return lastAdjustBlockHeight;
+    }
 
     // @dev gets the balance multiplier for the aux3Id
+    function getAux3IdBalanceMultiplier(uint256 _id) public view returns (uint256) {
+        return aux3IdBalanceMultiplier[_id];
+    }
 
     // @dev updates the balance multiplier for the aux3Id
+    function updateAux3IdBalanceMultiplier(uint256 _id) private {
+        // TODO: implement
+        // calculate the balance multiplier for the aux3Id in deployedChainTerms
+    }
 
     // @dev gets the cost multiplier for the chain
+    function getChainCostMultiplier(uint256 _chainId) public view returns (uint256) {
+        return chainCostMultipliers[_chainId];
+    }
 
     // @dev updates the cost multiplier for the chain
+    function updateChainCostMultiplier(uint256 _chainId, uint256 _newcostMultiplierForChain) external onlyOwner {
+        // maybe reconcile before updating it
+        chainCostMultipliers[_chainId] = _newcostMultiplierForChain;
+    }
+
+    // @dev get current calculated aux3IdBalance
+    function getAux3IdBalance(uint256 _id) public view returns (uint256) {
+        return aux3IdBalance[_id] - (aux3IdBalanceMultiplier[_id] * (block.number - lastAdjustBlockHeight));
+    }
 }
