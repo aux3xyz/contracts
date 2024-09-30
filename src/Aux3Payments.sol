@@ -7,8 +7,8 @@ import {OApp, MessagingFee, Origin} from "@layerzerolabs/oapp-evm/contracts/oapp
 import {OptionsBuilder} from "@layerzerolabs/oapp-evm/contracts/oapp/libs/OptionsBuilder.sol";
 
 abstract contract Aux3Payments is Ownable, OApp {
-    uint32 dstId;
-    address lzEndpoint;
+    uint32 dstId; // destination chainId for Aux3Registry
+    address lzEndpoint; // layerzero endpoint for payment chain (this contract)
 
     using OptionsBuilder for bytes;
 
@@ -26,6 +26,7 @@ abstract contract Aux3Payments is Ownable, OApp {
         setDelegate(msg.sender);
     }
 
+    // @dev sends a message to the destination chain via layerzero
     function _send(bytes memory _message) internal {
         bytes memory _options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 10); // TODO: calculate gas dynamically
         _lzSend(dstId, _message, _options, MessagingFee(msg.value, 0), payable(msg.sender));
